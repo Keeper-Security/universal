@@ -120,7 +120,7 @@ export const makeUniversalApp = async (opts: MakeUniversalOpts): Promise<void> =
         // Same for Assets.car
         if (
           path.basename(path.dirname(file.relativePath)) === 'MainMenu.nib' ||
-          path.basename(path.dirname(file.relativePath)) === 'Assets.car'
+          path.basename(file.relativePath) === 'Assets.car'
         ) {
           // The mismatch here is OK so we just move on to the next one
           continue;
@@ -131,7 +131,7 @@ export const makeUniversalApp = async (opts: MakeUniversalOpts): Promise<void> =
       }
     }
 
-    for (const machOFile of x64Files.filter((f) => f.type === AppFileType.MACHO)) {
+    for (const machOFile of x64Files.filter((f) => f.type === AppFileType.MACHO).filter((f) => !uniqueToX64.includes(f.relativePath))) {
       const first = await fs.realpath(path.resolve(tmpApp, machOFile.relativePath));
       const second = await fs.realpath(path.resolve(opts.arm64AppPath, machOFile.relativePath));
 
