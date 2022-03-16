@@ -100,14 +100,15 @@ export const makeUniversalApp = async (opts: MakeUniversalOpts): Promise<void> =
         uniqueToArm64.push(file.relativePath);
     }
     if (uniqueToX64.length !== 0 || uniqueToArm64.length !== 0) {
-      d('some files were not in both builds, aborting');
+      // This is OK
+      d('some files were not in both builds');
       console.error({
         uniqueToX64,
         uniqueToArm64,
       });
-      throw new Error(
-        'While trying to merge mach-o files across your apps we found a mismatch, the number of mach-o files is not the same between the arm64 and x64 builds',
-      );
+      // throw new Error(
+      //   'While trying to merge mach-o files across your apps we found a mismatch, the number of mach-o files is not the same between the arm64 and x64 builds',
+      // );
     }
 
     for (const file of x64Files.filter((f) => f.type === AppFileType.PLAIN)) {
