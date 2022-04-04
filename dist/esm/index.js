@@ -197,8 +197,11 @@ export const makeUniversalApp = async (opts) => {
         for (const plistFile of plistFiles) {
             const x64PlistPath = path.resolve(opts.x64AppPath, plistFile.relativePath);
             const arm64PlistPath = path.resolve(opts.arm64AppPath, plistFile.relativePath);
-            const _a = plist.parse(await fs.readFile(x64PlistPath, 'utf8')), { ElectronAsarIntegrity: x64Integrity } = _a, x64Plist = __rest(_a, ["ElectronAsarIntegrity"]);
-            const _b = plist.parse(await fs.readFile(arm64PlistPath, 'utf8')), { ElectronAsarIntegrity: arm64Integrity } = _b, arm64Plist = __rest(_b, ["ElectronAsarIntegrity"]);
+            // Apparently it is possible to have two different runners in GitHub Actions with different OS builds.
+            // For example, one was built with 20G417 (macOS 11.6.4) and the other with 20G527 (macOS 11.6.5).
+            // So additionally filter out "BuildMachineOSBuild" when comparing.
+            const _a = plist.parse(await fs.readFile(x64PlistPath, 'utf8')), { ElectronAsarIntegrity: x64Integrity, BuildMachineOSBuild: x64BuildOS } = _a, x64Plist = __rest(_a, ["ElectronAsarIntegrity", "BuildMachineOSBuild"]);
+            const _b = plist.parse(await fs.readFile(arm64PlistPath, 'utf8')), { ElectronAsarIntegrity: arm64Integrity, BuildMachineOSBuild: arm64BuildOS } = _b, arm64Plist = __rest(_b, ["ElectronAsarIntegrity", "BuildMachineOSBuild"]);
             if (JSON.stringify(x64Plist) !== JSON.stringify(arm64Plist)) {
                 throw new Error(`Expected all Info.plist files to be identical when ignoring integrity when creating a universal build but "${plistFile.relativePath}" was not`);
             }

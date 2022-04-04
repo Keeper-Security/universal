@@ -298,10 +298,13 @@ export const makeUniversalApp = async (opts: MakeUniversalOpts): Promise<void> =
       const x64PlistPath = path.resolve(opts.x64AppPath, plistFile.relativePath);
       const arm64PlistPath = path.resolve(opts.arm64AppPath, plistFile.relativePath);
 
-      const { ElectronAsarIntegrity: x64Integrity, ...x64Plist } = plist.parse(
+      // Apparently it is possible to have two different runners in GitHub Actions with different OS builds.
+      // For example, one was built with 20G417 (macOS 11.6.4) and the other with 20G527 (macOS 11.6.5).
+      // So additionally filter out "BuildMachineOSBuild" when comparing.
+      const { ElectronAsarIntegrity: x64Integrity, BuildMachineOSBuild: x64BuildOS, ...x64Plist } = plist.parse(
         await fs.readFile(x64PlistPath, 'utf8'),
       ) as any;
-      const { ElectronAsarIntegrity: arm64Integrity, ...arm64Plist } = plist.parse(
+      const { ElectronAsarIntegrity: arm64Integrity, BuildMachineOSBuild: arm64BuildOS, ...arm64Plist } = plist.parse(
         await fs.readFile(arm64PlistPath, 'utf8'),
       ) as any;
       if (JSON.stringify(x64Plist) !== JSON.stringify(arm64Plist)) {
